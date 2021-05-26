@@ -29,7 +29,7 @@
         <input type="submit" value="Logout" name="btAction" />
     </form>
 
-
+    <a href="HistoryServlet?pageHistory=1">Booking History</a>
     <form action="DispatchServlet" method="POST">
         Keyword:  <input type="text" name="txtSearchValue" value="${param.txtSearchValue}" /> 
         <label for="cars">Choose a category:</label>

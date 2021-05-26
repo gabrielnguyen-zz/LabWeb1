@@ -44,7 +44,7 @@ public class LoginServlet extends HttpServlet {
         String gRecaptchaResponse = request.getParameter("g-recaptcha-response");
         System.out.println(gRecaptchaResponse);
         boolean valid = VerifyCaptcha.verify(gRecaptchaResponse);
-        request.setAttribute("ERROR", "Invalid Captcha");
+        
         url = LOGIN_PAGE;
         try {
             if (valid) {
@@ -75,6 +75,8 @@ public class LoginServlet extends HttpServlet {
                         url = LEADER;
                     }
                 }
+            }else{
+                request.setAttribute("ERROR", "Invalid Captcha");
             }
 
         } catch (Exception e) {

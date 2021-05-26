@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.naming.NamingException;
+import labweb1.constants.MyConstants;
 import labweb1.utils.DBUtils;
 import labweb1.utils.TextUtils;
 
@@ -193,9 +194,18 @@ public class AccountDAO implements Serializable {
         listResource = searchAllResource(searchValue);
 
         try {
-            String sql = "Select s.id ,r.fromDate, r.endDate, r.quantity as useQuantity, s.name, s.color,s.quantity from Request as r, Resource as s, Category as c\n"
-                    + "where  c.id = ? and c.id = s.categoryId and s.name LIKE ? and r.resourceId = s.id and r.status = 'Accept' and \n"
-                    + "(r.fromDate >= ? OR r.endDate <=?) ";
+            String sql = "Select s.id, r.fromDate, r.endDate, r.quantity as useQuantity, s.name, s.color, s.quantity"
+                    + "from Request as r,"
+                    + "     Resource as s,"
+                    + "     Category as c"
+                    + "where c.id = ?"
+                    + "  and c.id = s.categoryId"
+                    + "  and s.name LIKE ?"
+                    + "  and r.resourceId = s.id"
+                    + "  and r.status = 'Accept'"
+                    + "  and"
+                    + "    (r.fromDate >= ?"
+                    + "   OR r.endDate <=?) ";
             con = DBUtils.makeConnection();
             pst = con.prepareStatement(sql);
             pst.setString(1, cate);
@@ -387,11 +397,11 @@ public class AccountDAO implements Serializable {
         }
         return 0;
     }
-    
-    public boolean booking(String username, int resourceId, String from, String end, int quantity) throws Exception{
-        boolean check =false;
+
+    public boolean booking(String username, int resourceId, String from, String end, int quantity) throws Exception {
+        boolean check = false;
         try {
-            String sql ="Insert into Request(resourceId, userId, fromDate, endDate , quantity) values(?,?,?,?,?)";
+            String sql = "Insert into Request(resourceId, userId, fromDate, endDate , quantity) values(?,?,?,?,?)";
             con = DBUtils.makeConnection();
             pst = con.prepareStatement(sql);
             pst.setInt(1, resourceId);
@@ -406,9 +416,101 @@ public class AccountDAO implements Serializable {
         } catch (Exception e) {
             e.printStackTrace();
             return false;
-        }finally{
+        } finally {
             closeConnection();
         }
         return check;
+    }
+
+    public List<ResourceDTO> getHistoryBooking(String username, int page) throws Exception {
+        List<ResourceDTO> list = new ArrayList<>();
+        int minIndex = 1;
+        int maxIndex = MyConstants.ITEMPERPAGE;
+        if (page > 1) {
+            minIndex = page * MyConstants.ITEMPERPAGE - (page - 1) * MyConstants.ITEMPERPAGE + 1;
+            maxIndex = minIndex + MyConstants.ITEMPERPAGE - 1;
+        }
+        try {
+            String sql = "SELECT*"
+                    + "FROM (SELECT r.id,"
+                    + "             ROW_NUMBER() OVER(ORDER BY r.id) AS rownumber,"
+                    + "             r.status,"
+                    + "             r.isActive,"
+                    + "             r.requestDate,"
+                    + "             r.updatedDate,"
+                    + "             r.fromDate,"
+                    + "             r.endDate,"
+                    + "             r.description,"
+                    + "             r.quantity,"
+                    + "             a.name as resourceName,"
+                    + "             a.color,"
+                    + "             c.name as categoryName"
+                    + "      from Request as r"
+                    + "           inner join Resource a on a.id = r.resourceId"
+                    + "           inner join Category C on C.id = a.categoryId"
+                    + "      where userId = ?"
+                    + "        and r.isActive = 'true') as tmp where tmp.rownumber between ? and ?";
+            con = DBUtils.makeConnection();
+            pst = con.prepareStatement(sql);
+            pst.setString(1, username);
+            pst.setInt(2, minIndex);
+            pst.setInt(3, maxIndex);
+            rs = pst.executeQuery();
+            while (rs.next()) {
+                String resourceName = rs.getString("resourceName");
+                String categoryName = rs.getString("categoryName");
+                String from = rs.getString("fromDate");
+                String end = rs.getString("endDate");
+                String description = rs.getString("description");
+                String status = rs.getString("status");
+                String requestDate = rs.getString("requestDate");
+                String updatedDate = rs.getString("updatedDate");
+                String color = rs.getString("color");
+                int quantity = rs.getInt("quantity");
+                int id = rs.getInt("id");
+                ResourceDTO dto = new ResourceDTO(end, color, categoryName, from, end, status, description, requestDate, updatedDate, id, quantity);
+                list.add(dto);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            closeConnection();
+        }
+        return list;
+    }
+
+    public int getNoOfHistoryRec(String username) {
+        int i = 0;
+        try {
+            String sql = "SELECT r.id,"
+                    + "             ROW_NUMBER() OVER(ORDER BY r.id) AS rownumber,"
+                    + "             r.status,"
+                    + "             r.isActive,"
+                    + "             r.requestDate,"
+                    + "             r.updatedDate,"
+                    + "             r.fromDate,"
+                    + "             r.endDate,"
+                    + "             r.description,"
+                    + "             r.quantity,"
+                    + "             a.name as resourceName,"
+                    + "             a.color,"
+                    + "             c.name as categoryName"
+                    + "      from Request as r"
+                    + "           inner join Resource a on a.id = r.resourceId"
+                    + "           inner join Category C on C.id = a.categoryId"
+                    + "      where userId = ?"
+                    + "        and r.isActive = 'true'";
+            con = DBUtils.makeConnection();
+            pst = con.prepareStatement(sql);
+            pst.setString(1, username);
+            rs = pst.executeQuery();
+            while (rs.next()) {
+                i++;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return i;
     }
 }
