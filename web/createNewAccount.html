@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Create New Account</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <h1>Registration</h1>
+        <form action="DispatchServlet" method="POST">
+            Username (E-mail)* <input type="text" name="txtUser" value=""  style="margin-left: 30px"/>  <br/>
+            Password* <input type="password" name="txtPass" value="" style="padding-right: 7px; margin-left: 34px"/> <br/>
+            Full Name* <input type="text" name="txtFullname" value="" style="margin-left: 14px"/> <br/>
+            Phone* <input type="text" name="txtPhone" value="" style="margin-left: 33px; padding-right: 0.5px"/> <br/>
+            Address* <input type="text" name="txtAddress" value=""  style="margin-left: 31px"/> <br/>
+            Role*  <select name="role" id="category">
+                <option value="emp">Employee</option>
+                <option value="lead">Leader</option>
+            </select>
+            <br>
+            <input type="submit" value="Create New Account" name="btAction" style="margin: 20px"/>
+            <input type="reset" value="Reset" style="margin: 20px"/>
+        </form>
+    </body>
+</html>
