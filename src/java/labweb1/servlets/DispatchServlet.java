@@ -25,6 +25,10 @@ public class DispatchServlet extends HttpServlet {
     private final String createServlet = "CreateServlet";
     private final String verifyServlet = "VerifyServlet";
     private final String bookingServlet = "BookingServlet";
+    private final String deleteServlet = "DeleteHistoryServlet";
+    private final String acceptProcessServlet = "AcceptProcessServlet";
+    private final String deleteProcessServlet = "DeleteProcessServlet";
+    private final String searchProcessServlet = "SearchProcessServlet";
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -53,6 +57,14 @@ public class DispatchServlet extends HttpServlet {
                 url = verifyServlet;
             }else if(action.equals("Booking")){
                 url = bookingServlet;
+            }else if(action.equals("Delete")){
+                url = deleteServlet;
+            }else if(action.equals("AccpetProcess")){
+                url= acceptProcessServlet;
+            }else if(action.equals("DeleteProcess")){
+                url = deleteProcessServlet;
+            }else if(action.equals("Search Process")){
+                url = searchProcessServlet;
             }
                  
             

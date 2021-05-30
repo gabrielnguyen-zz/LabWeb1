@@ -27,8 +27,17 @@
         Welcome, ${ACCOUNTNAME}
         </font>
         <input type="submit" value="Logout" name="btAction" />
+
     </form>
-        <br>
+    <br>
+    <%
+        if (request.getAttribute("ERROR") != null) {
+    %>
+    <font color="red">
+    <%=request.getAttribute("ERROR")%>
+    </font>
+    <% }%>
+    <br>
     <c:set var="result" value="${requestScope.RESULTHISTORY}"/>
     <c:if test="${not empty result}">
         <form action="DispatchServlet">
@@ -46,6 +55,7 @@
                         <th>End Date</th>
                         <th>Status</th>
                         <th>Description</th>
+                        <th>Delete</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -82,6 +92,9 @@
                             <td>
                                 ${dto.description}
                             </td>
+                            <td>
+                                <input type="checkbox" name="chkDelete" value="${dto.id}" />
+                            </td>
                         </tr>
 
                     </c:forEach>
@@ -114,6 +127,7 @@
                 <td><a href="HistoryServlet?pagHistorye=${currentPageHistory + 1}">Next</a></td>
             </c:if>
             <br>
+            <input type="submit" value="Delete" name="btAction" />
         </form>
 
     </c:if>

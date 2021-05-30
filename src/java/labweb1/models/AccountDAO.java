@@ -7,6 +7,7 @@ package labweb1.models;
 //893391
 
 import java.io.Serializable;
+import java.sql.Array;
 import java.sql.Connection;
 
 import java.sql.PreparedStatement;
@@ -480,7 +481,7 @@ public class AccountDAO implements Serializable {
         return list;
     }
 
-    public int getNoOfHistoryRec(String username) {
+    public int getNoOfHistoryRec(String username) throws Exception {
         int i = 0;
         try {
             String sql = "SELECT r.id,"
@@ -510,7 +511,136 @@ public class AccountDAO implements Serializable {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            closeConnection();
         }
         return i;
+    }
+
+    public boolean deleteHistoryBooking(List<String> id) throws Exception {
+        boolean check = false;
+        try {
+            String sql = "UPDATE Request SET isActive = 'false' WHERE ID IN (";
+            String tmp = "";
+            for (int i = 0; i < id.size(); i++) {
+                tmp += ",?";
+            }
+            tmp = tmp.replaceFirst(",", "");
+            tmp += ")";
+            sql = sql + tmp;
+            con = DBUtils.makeConnection();
+            pst = con.prepareStatement(sql);
+            for (int i = 0; i < id.size(); i++) {
+                pst.setString(i + 1, id.get(i));
+            }
+            check = pst.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeConnection();
+        }
+
+        return check;
+    }
+
+    public List<ResourceDTO> searchRequest(String value, String status, int page) throws Exception {
+        List<ResourceDTO> list = new ArrayList<>();
+        try {
+            int minIndex = 1;
+            int maxIndex = MyConstants.ITEMPERPAGE;
+            if (page > 1) {
+                minIndex = page * MyConstants.ITEMPERPAGE - (page - 1) * MyConstants.ITEMPERPAGE + 1;
+                maxIndex = minIndex + MyConstants.ITEMPERPAGE - 1;
+            }
+            String sql = "SELECT * FROM ("
+                    + "Select "
+                    + "ROW_NUMBER() OVER (ORDER BY r.id) AS rownumber,"
+                    + "r.id, "
+                    + "r.fromDate, "
+                    + "r.endDate, "
+                    + "r.quantity as useQuantity, "
+                    + "s.name, s.color, "
+                    + "s.quantity,"
+                    + "r.requestDate,"
+                    + "r.updatedDate "
+                    + "from Request as r,"
+                    + "     Resource as s,"
+                    + "     Category as c "
+                    + "where c.id = s.categoryId"
+                    + "  and s.name LIKE ?"
+                    + "  and r.resourceId = s.id"
+                    + "  and r.status = ?) as tmp where tmp.rownumber between ? and ?";
+            con = DBUtils.makeConnection();
+            pst = con.prepareStatement(sql);
+            pst.setString(1, "%" + value + "%");
+            pst.setString(2, status);
+            pst.setInt(3, minIndex);
+            pst.setInt(4, maxIndex);
+            rs = pst.executeQuery();
+            while (rs.next()) {
+                String from = rs.getString("fromDate");
+                String end = rs.getString("endDate");
+                int useQuantity = rs.getInt("useQuantity");
+                String name = rs.getString("name");
+                String color = rs.getString("color");
+                int id = rs.getInt("id");
+                String requestDate = rs.getString("requestDate");
+                String updatedDate = rs.getString("updatedDate");
+                ResourceDTO dto = new ResourceDTO(name, color, id, useQuantity, from, end, requestDate, updatedDate);
+                list.add(dto);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeConnection();
+        }
+
+        return list;
+    }
+
+    public int getNoOfProcessRec(String searchValue, String status) throws Exception {
+        int i = 0;
+        try {
+            String sql = "Select *"
+                    + "from Request as r,"
+                    + "     Resource as s,"
+                    + "     Category as c "
+                    + "where c.id = s.categoryId"
+                    + "  and s.name LIKE ?"
+                    + "  and r.resourceId = s.id"
+                    + "  and r.status = ?";
+            con = DBUtils.makeConnection();
+            pst = con.prepareStatement(sql);
+            pst.setString(1, "%" + searchValue + "%");
+            pst.setString(2, status);
+            rs = pst.executeQuery();
+            while (rs.next()) {
+                i++;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeConnection();
+        }
+        return i;
+    }
+    
+    public boolean updateRequest (String requestId,String answer, String description) throws Exception{
+        boolean check = false;
+        try {
+            String sql = "UPDATE Request Set status = ? and description = ? where id = ? ";
+            con= DBUtils.makeConnection();
+            pst = con.prepareStatement(sql);
+            pst.setString(1, answer);
+            pst.setString(2, description);
+            pst.setInt(3, Integer.parseInt(requestId));
+            check = pst.executeUpdate() > 1;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally{
+            closeConnection();
+        }
+        
+        return check;
     }
 }

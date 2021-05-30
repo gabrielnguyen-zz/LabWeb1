@@ -32,6 +32,16 @@ public class ResourceDTO {
         this.from= from;
         this.end = end;
     }
+    public ResourceDTO(String name, String color, int id, int quantity, String from , String end, String requestDate, String updatedDate) {
+        this.name = name;
+        this.color = color;
+        this.quantity = quantity;
+        this.id = id;
+        this.from= from;
+        this.end = end;
+        this.requestDate = requestDate;
+        this.updatedDate = updatedDate;
+    }
 
      public ResourceDTO(String name, String color, int id, int quantity) {
         this.name = name;

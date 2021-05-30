@@ -32,6 +32,22 @@
         <servlet-name>HistoryServlet</servlet-name>
         <servlet-class>labweb1.servlets.HistoryServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>DeleteHistoryServlet</servlet-name>
+        <servlet-class>labweb1.servlets.DeleteHistoryServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>SearchProcessServlet</servlet-name>
+        <servlet-class>labweb1.servlets.SearchProcessServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AcceptProcessServlet</servlet-name>
+        <servlet-class>labweb1.servlets.AcceptProcessServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>DeleteProcessServlet</servlet-name>
+        <servlet-class>labweb1.servlets.DeleteProcessServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>DispatchServlet</servlet-name>
         <url-pattern>/DispatchServlet</url-pattern>
@@ -63,6 +79,22 @@
     <servlet-mapping>
         <servlet-name>HistoryServlet</servlet-name>
         <url-pattern>/HistoryServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DeleteHistoryServlet</servlet-name>
+        <url-pattern>/DeleteHistoryServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SearchProcessServlet</servlet-name>
+        <url-pattern>/SearchProcessServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AcceptProcessServlet</servlet-name>
+        <url-pattern>/AcceptProcessServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DeleteProcessServlet</servlet-name>
+        <url-pattern>/DeleteProcessServlet</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

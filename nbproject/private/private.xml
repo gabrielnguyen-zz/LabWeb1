@@ -3,12 +3,12 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/F:/Project/LabWeb1/src/java/labweb1/servlets/SearchServlet.java</file>
+            <file>file:/F:/Project/LabWeb1/src/java/labweb1/servlets/DeleteProcessServlet.java</file>
             <file>file:/F:/Project/LabWeb1/src/java/labweb1/models/AccountDAO.java</file>
-            <file>file:/F:/Project/LabWeb1/src/java/labweb1/servlets/LoginServlet.java</file>
-            <file>file:/F:/Project/LabWeb1/web/bookingHistory.jsp</file>
+            <file>file:/F:/Project/LabWeb1/src/java/labweb1/servlets/AcceptProcessServlet.java</file>
+            <file>file:/F:/Project/LabWeb1/src/java/labweb1/servlets/SearchProcessServlet.java</file>
+            <file>file:/F:/Project/LabWeb1/web/requestProcess.jsp</file>
             <file>file:/F:/Project/LabWeb1/src/java/labweb1/servlets/HistoryServlet.java</file>
-            <file>file:/F:/Project/LabWeb1/src/java/labweb1/models/ResourceDTO.java</file>
         </group>
     </open-files>
 </project-private>

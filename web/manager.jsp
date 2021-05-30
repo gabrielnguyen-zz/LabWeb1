@@ -24,45 +24,59 @@
         </c:forEach>
 
         <font color="blue">
-        Welcome, ${ACCOUNTNAME}
+        Welcome, Manager ${ACCOUNTNAME}
         </font>
         <input type="submit" value="Logout" name="btAction" />
     </form>
-
-        
-        <a href="createNewAccount.html">Create new account</a>    
+        <br>
+        <a href="createNewAccount.html">Create account for staff</a>
+        <br>
+        <a href="requestProcess.jsp">Manage resource</a>
         <br>
     <form action="DispatchServlet" method="POST">
         Keyword:  <input type="text" name="txtSearchValue" value="${param.txtSearchValue}" /> 
-        <label for="cars">Choose a category:</label>
+        
 
         <select name="category" id="category">
             <option value="1">Văn phòng phẩm</option>
             <option value="2">Dụng cụ văn phòng</option>
         </select>
+        <br>
+        <label for="cars">Choose a status</label>
         <div class="book-date one-third">
             <label for="check-in">From date : </label>
-            <input type="text" id="checkin_date" class="form-control" placeholder="YYYY/MM/DD" name="txtFrom">
+            <input type="text" id="checkin_date" class="form-control" placeholder="YYYY/MM/DD" name="txtFrom" value="${param.txtFrom}">
 
         </div>
 
         <div class="book-date one-third">
             <label for="check-out">End date :  </label>
-            <input type="text" id="checkout_date" class="form-control" placeholder="YYYY/MM/DD" name="txtEnd">
+            <input type="text" id="checkout_date" class="form-control" placeholder="YYYY/MM/DD" name="txtEnd" value ="${param.txtEnd}">
         </div>
         <input type="submit" value="Search" name="btAction" />
     </form>
     <br>
 
     <c:set var="searchValue" value="${param.txtSearchValue}"/>
-    <c:set var="category" value="${param.category}"/>
+
     <c:set var="fromDate" value="${param.txtFrom}"/>
     <c:set var="endDate" value="${param.txtEnd}"/>
+
+
     <c:if test="${not empty fromDate}"> 
         <c:set var="result" value="${requestScope.RESULTSEARCH}"/>
         <c:if test="${not empty result}">
+
+            <%
+                if (request.getAttribute("BOOKINGERROR") != null) {
+            %>
+            <font color="red">
+            <%=request.getAttribute("BOOKINGERROR")%>
+            </font>
+            <% }%>
             <%-- <form action="deleteConfirm"> --%>
-            <form action="delete">
+            <form action="DispatchServlet">
+                <c:set var="category" value="${param.category}"/>
                 <table border="1">
                     <thead>
                         <tr>
@@ -72,8 +86,7 @@
                             <th>Quantity</th>
                             <th>From Date</th>
                             <th>End Date</th>
-
-
+                            
                         </tr>
                     </thead>
                     <tbody>
@@ -88,6 +101,7 @@
                                 </td>
                                 <td>
                                     ${dto.quantity}
+
                                 </td> 
                                 <td>
                                     ${dto.from}
@@ -95,9 +109,7 @@
                                 <td>
                                     ${dto.end}
                                 </td>
-<!--                                <td>
-                                    <input type="checkbox" name="chkDelete" value="${dto.id}" />
-                                </td>-->
+                               
 
                             </tr>
 
@@ -130,16 +142,13 @@
                 <c:if test="${currentPage lt noOfPages}">
                     <td><a href="SearchServlet?page=${currentPage + 1}&txtSearchValue=${param.txtSearchValue}&category=${param.category}&txtFrom=${param.txtFrom}&txtEnd=${param.txtEnd}">Next</a></td>
                 </c:if>
-
-                <input type="hidden" name="lastSearch" value="${param.txtSearchValue}" />
-                <input type="submit" value="Delete" name="btAction" onclick="return confirm('All selected items  will be deleted? Are  you sure? ')"/>
+                <br>
             </form>
 
         </c:if>
         <c:if test="${empty result}">
             <h2>No record is macthed!!!!</h2>
         </c:if>
-        
     </c:if>
     <script src="js/pagination.js"></script>
 
