@@ -82,13 +82,15 @@
                                 </td>
                                 <td>
                                     ${dto.quantity}
-
+                                    <input type="hidden" value="${dto.quantity}" name="txtQuantity" />
                                 </td> 
                                 <td>
                                     ${dto.from}
+                                    <input type="hidden" value="${dto.from}" name="txtFrom" />
                                 </td>
                                 <td>
                                     ${dto.end}
+                                    <input type="hidden" value="${dto.end}" name="txtEnd" />
                                 </td>
                                 <td>
                                     ${dto.requestDate}
@@ -98,11 +100,12 @@
                                 </td>
                                 <td>
                                     <input type="hidden" value="${dto.id}" name="txtId" />
-                                    <input type="submit" value="AcceptRequest" name="btAction" />
+                                    <input type="hidden" value="${dto.resourceId}" name="txtResourceId" />
+                                    <input type="submit" value="Accept Process" name="btAction" />
                                 </td>
                                 <td>
                                     <input type="hidden" value="${dto.id}" name="txtId" />
-                                    <input type="submit" value="DeleteRequest" name="btAction" />
+                                    <input type="submit" value="Delete Process" name="btAction" />
                                 </td>
                                 <td>
                                     <input type="text" value="" name="txtDescription"> 
@@ -139,7 +142,7 @@
                     <td><a href="SearchProcessServlet?page=${currentPageProcess + 1}&txtSearchValue=${param.txtSearchValue}&status=${param.status}">Next</a></td>
                 </c:if>
                     <br>
-                <input type="hidden" name="lastSearch" value="${param.txtSearchValue}" />
+                
             </form>
 
         </c:if>

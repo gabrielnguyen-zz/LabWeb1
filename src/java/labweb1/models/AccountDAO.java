@@ -186,6 +186,139 @@ public class AccountDAO implements Serializable {
         return list;
     }
 
+    public boolean checkQuantityBeforeAccept(String resourceId, String quantity, String fromDate, String endDate) throws Exception {
+        boolean check = false;
+        List<String> dates = new ArrayList();
+        List<ResourceDTO> listRequest = new ArrayList();
+        List<ResourceDTO> listRequestTemp = new ArrayList();
+        int inventoryQuantity = 0;
+        TextUtils textUtils = new TextUtils();
+        try {
+            String sql = "Select r.fromDate, r.endDate, r.quantity as useQuantity ,s.quantity "
+                    + "from Request as r "
+                    + "         inner join Resource as s on s.id = r.resourceId "
+                    + "         inner join Category as c on c.id = s.categoryId "
+                    + "where s.id = ? "
+                    + "  and r.resourceId = s.id "
+                    + "  and r.status = 'Accept' "
+                    + "  and ((r.fromDate >= ? AND r.endDate >= ?) "
+                    + "  or (r.fromDate >= ? AND r.endDate <= ? AND r.endDate > ?) "
+                    + "  or (r.fromDate <= ? AND r.endDate <= ?) "
+                    + "  or (r.fromDate <= ? AND r.endDate >= ? AND r.fromDate < ?)) ";
+            con = DBUtils.makeConnection();
+            pst = con.prepareStatement(sql);
+            pst.setInt(1, Integer.parseInt(resourceId));
+            pst.setString(2, fromDate);
+            pst.setString(3, endDate);
+            pst.setString(4, fromDate);
+            pst.setString(5, endDate);
+            pst.setString(6, fromDate);
+            pst.setString(7, fromDate);
+            pst.setString(8, endDate);
+            pst.setString(9, fromDate);
+            pst.setString(10, endDate);
+            pst.setString(11, endDate);
+            rs = pst.executeQuery();
+            while (rs.next()) {
+                String from = rs.getString("fromDate");
+                String end = rs.getString("endDate");
+                int quant = rs.getInt("useQuantity");
+                inventoryQuantity = rs.getInt("quantity");
+                dates.add(from);
+                dates.add(end);
+                ResourceDTO dto = new ResourceDTO(from, end, quant, inventoryQuantity, null);
+                listRequest.add(dto);
+            }
+            if (dates.size() > 0) {
+                Collections.sort(dates, new Comparator<String>() {
+                    @Override
+                    public int compare(String o1, String o2) {
+                        try {
+                            return o1.compareTo(o2);
+                        } catch (Exception e) {
+                            throw new IllegalArgumentException(e);
+                        }
+                    }
+                });
+                List<String> newDates = dates.stream().distinct().collect(Collectors.toList());
+                List<String> finalDates = dates.stream().distinct().collect(Collectors.toList());
+                for (String date : newDates) {
+                    for (ResourceDTO request : listRequest) {
+                        if (request.getFrom().compareTo(date) * date.compareTo(request.getEnd()) >= 0) {
+                            ResourceDTO temp = new ResourceDTO(date, request.getQuantity());
+                            listRequestTemp.add(temp);
+                        }
+                    }
+
+                }
+                SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
+                Collections.sort(newDates, new Comparator<String>() {
+                    @Override
+                    public int compare(String o1, String o2) {
+                        try {
+                            return o1.compareTo(o2);
+                        } catch (Exception e) {
+                            throw new IllegalArgumentException(e);
+                        }
+                    }
+                });
+                for (int i = 0; i < newDates.size(); i++) {
+                    if (i < newDates.size() - 1) {
+                        Date d1 = (Date) format.parse(textUtils.convertDate2(newDates.get(i)));
+                        Date d2 = (Date) format.parse(textUtils.convertDate2(newDates.get(i + 1)));
+                        int diff = d2.getDate() - d1.getDate();
+                        if (diff >= 2) {
+                            LocalDate start = LocalDate.parse(newDates.get(i));
+                            LocalDate end = LocalDate.parse(newDates.get(i + 1));
+                            List<LocalDate> totalDates = new ArrayList<>();
+                            while (!start.isAfter(end) && !start.isEqual(end)) {
+                                totalDates.add(start);
+                                start = start.plusDays(1);
+                                
+                            }
+                            for (int j = 1; j < totalDates.size(); j++) {
+                                for (ResourceDTO request : listRequest) {
+                                    if (request.getFrom().compareTo(totalDates.get(j).toString()) * totalDates.get(j).toString().compareTo(request.getEnd()) >= 0) {
+                                        ResourceDTO temp = new ResourceDTO(totalDates.get(j).toString(), request.getQuantity());
+                                        listRequestTemp.add(temp);
+                                        
+                                    }
+                                }
+                                finalDates.add(totalDates.get(j).toString());
+                            }
+                        }
+                    }
+                }
+                System.out.println("Aloha");
+                List<ResourceDTO> finalList = new ArrayList();
+                
+                for (String date : finalDates) {
+                    int everydayQuantity = inventoryQuantity;
+                    for (ResourceDTO temp : listRequestTemp) {
+                        if(temp.getFrom().equals(date)){
+                            everydayQuantity = everydayQuantity - temp.getQuantity();
+                        }
+                    }
+                    ResourceDTO dto = new ResourceDTO(date, everydayQuantity);
+                    finalList.add(dto);
+                }
+                for(ResourceDTO temp : finalList){
+                    if(temp.getQuantity() < Integer.parseInt(quantity)){
+                        return true;
+                    }
+                }
+
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println(e);
+        } finally {
+            closeConnection();
+        }
+        return check;
+    }
+
     public List<ResourceDTO> searchResource(String searchValue, String cate, String fromDate, String endDate) throws Exception {
         List<ResourceDTO> list = new ArrayList();
         TextUtils textUtils = new TextUtils();
@@ -196,23 +329,31 @@ public class AccountDAO implements Serializable {
 
         try {
             String sql = "Select s.id, r.fromDate, r.endDate, r.quantity as useQuantity, s.name, s.color, s.quantity"
-                    + "from Request as r,"
-                    + "     Resource as s,"
-                    + "     Category as c"
+                    + "from Request as r"
+                    + "         inner join Resource s on s.id = r.resourceId"
+                    + "         inner join Category c on c.id = s.categoryId"
                     + "where c.id = ?"
-                    + "  and c.id = s.categoryId"
                     + "  and s.name LIKE ?"
-                    + "  and r.resourceId = s.id"
                     + "  and r.status = 'Accept'"
-                    + "  and"
-                    + "    (r.fromDate >= ?"
-                    + "   OR r.endDate <=?) ";
+                    + "  and "
+                    + "    ((r.fromDate >= ? AND r.endDate >= ?) "
+                    + "  or (r.fromDate >= ? AND r.endDate <= ? AND r.endDate > ?)"
+                    + "  or (r.fromDate <= ? AND r.endDate <= ?) "
+                    + "  or (r.fromDate <= ? AND r.endDate >= ? AND r.fromDate < ?)) ";
             con = DBUtils.makeConnection();
             pst = con.prepareStatement(sql);
             pst.setString(1, cate);
             pst.setString(2, "%" + searchValue + "%");
             pst.setString(3, fromDate);
             pst.setString(4, endDate);
+            pst.setString(5, fromDate);
+            pst.setString(6, endDate);
+            pst.setString(7, fromDate);
+            pst.setString(8, fromDate);
+            pst.setString(9, endDate);
+            pst.setString(10, fromDate);
+            pst.setString(11, endDate);
+            pst.setString(12, endDate);
             rs = pst.executeQuery();
             while (rs.next()) {
                 String from = rs.getString("fromDate");
@@ -562,7 +703,8 @@ public class AccountDAO implements Serializable {
                     + "s.name, s.color, "
                     + "s.quantity,"
                     + "r.requestDate,"
-                    + "r.updatedDate "
+                    + "r.updatedDate,"
+                    + "s.id as resourceId "
                     + "from Request as r,"
                     + "     Resource as s,"
                     + "     Category as c "
@@ -586,7 +728,8 @@ public class AccountDAO implements Serializable {
                 int id = rs.getInt("id");
                 String requestDate = rs.getString("requestDate");
                 String updatedDate = rs.getString("updatedDate");
-                ResourceDTO dto = new ResourceDTO(name, color, id, useQuantity, from, end, requestDate, updatedDate);
+                int resourceId = rs.getInt("resourceId");
+                ResourceDTO dto = new ResourceDTO(name, color, id, useQuantity, from, end, requestDate, updatedDate, resourceId);
                 list.add(dto);
             }
         } catch (Exception e) {
@@ -624,12 +767,12 @@ public class AccountDAO implements Serializable {
         }
         return i;
     }
-    
-    public boolean updateRequest (String requestId,String answer, String description) throws Exception{
+
+    public boolean updateRequest(String requestId, String answer, String description) throws Exception {
         boolean check = false;
         try {
-            String sql = "UPDATE Request Set status = ? and description = ? where id = ? ";
-            con= DBUtils.makeConnection();
+            String sql = "UPDATE Request Set status = ? , description = ?, updatedDate = sysdatetime() where id = ? ";
+            con = DBUtils.makeConnection();
             pst = con.prepareStatement(sql);
             pst.setString(1, answer);
             pst.setString(2, description);
@@ -637,10 +780,11 @@ public class AccountDAO implements Serializable {
             check = pst.executeUpdate() > 1;
         } catch (Exception e) {
             e.printStackTrace();
-        }finally{
+        } finally {
             closeConnection();
         }
-        
+
         return check;
     }
+
 }

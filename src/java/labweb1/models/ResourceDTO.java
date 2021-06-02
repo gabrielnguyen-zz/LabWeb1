@@ -11,11 +11,25 @@ package labweb1.models;
  */
 public class ResourceDTO {
     private String name, color, category, from , end, status, description, requestDate, updatedDate;
-    private int id, quantity;
+    private int id, quantity, resourceId, inventoryQuantity;
 
     public ResourceDTO() {
     }
 
+    public ResourceDTO(String from, int quantity) {
+        this.from = from;
+        this.quantity = quantity;
+    }
+    
+    
+    public ResourceDTO(String from, String end, int quantity, int inventoryQuantity ,String  color) {
+        this.from = from;
+        this.end = end;
+        this.quantity = quantity;
+        this.inventoryQuantity = inventoryQuantity;
+        this.color = color;
+    }
+    
     public ResourceDTO(String name, String color, String category, int id, int quantity) {
         this.name = name;
         this.color = color;
@@ -32,7 +46,7 @@ public class ResourceDTO {
         this.from= from;
         this.end = end;
     }
-    public ResourceDTO(String name, String color, int id, int quantity, String from , String end, String requestDate, String updatedDate) {
+    public ResourceDTO(String name, String color, int id, int quantity, String from , String end, String requestDate, String updatedDate, int resourceId) {
         this.name = name;
         this.color = color;
         this.quantity = quantity;
@@ -41,8 +55,25 @@ public class ResourceDTO {
         this.end = end;
         this.requestDate = requestDate;
         this.updatedDate = updatedDate;
+        this.resourceId = resourceId;
     }
 
+    public int getResourceId() {
+        return resourceId;
+    }
+
+    public void setResourceId(int resourceId) {
+        this.resourceId = resourceId;
+    }
+
+    public int getInventoryQuantity() {
+        return inventoryQuantity;
+    }
+
+    public void setInventoryQuantity(int inventoryQuantity) {
+        this.inventoryQuantity = inventoryQuantity;
+    }
+    
      public ResourceDTO(String name, String color, int id, int quantity) {
         this.name = name;
         this.color = color;

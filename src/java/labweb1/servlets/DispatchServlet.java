@@ -59,9 +59,9 @@ public class DispatchServlet extends HttpServlet {
                 url = bookingServlet;
             }else if(action.equals("Delete")){
                 url = deleteServlet;
-            }else if(action.equals("AccpetProcess")){
+            }else if(action.equals("Accept Process")){
                 url= acceptProcessServlet;
-            }else if(action.equals("DeleteProcess")){
+            }else if(action.equals("Delete Process")){
                 url = deleteProcessServlet;
             }else if(action.equals("Search Process")){
                 url = searchProcessServlet;

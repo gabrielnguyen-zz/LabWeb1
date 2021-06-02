@@ -18,7 +18,9 @@ import labweb1.models.AccountDAO;
  * @author Gabriel Nguyen
  */
 public class AcceptProcessServlet extends HttpServlet {
-    private final static String REQUEST_PROCESS_PAGE = "requestProcess.jsp";
+
+    private final static String REQUEST_PROCESS_PAGE = "SearchProcessServlet";
+
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -34,22 +36,30 @@ public class AcceptProcessServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         String requestId = request.getParameter("txtId");
         String description = request.getParameter("txtDescription");
-        
+        String name = request.getParameter("txtName");
+        String quantity = request.getParameter("txtQuantity");
+        String from = request.getParameter("txtFrom");
+        String end = request.getParameter("txtEnd");
+        String resourceId = request.getParameter("txtResourceId");
         try {
             if (description.trim().length() > 0) {
                 AccountDAO dao = new AccountDAO();
-                boolean check = dao.updateRequest(requestId, "Accept", description);
-                if (check) {
-                    request.setAttribute("PROCESSERROR", "Accept Success");
-                }else{
-                    request.setAttribute("PROCESSERROR", "Accept Fail");
+                boolean check = dao.checkQuantityBeforeAccept(resourceId, quantity, from, end);
+                if (!check) {
+                    check = dao.updateRequest(requestId, "Accept", description);
+                    if (check) {
+                        request.setAttribute("PROCESSERROR", "Accept Success");
+                    } else {
+                        request.setAttribute("PROCESSERROR", "Accept Fail");
+                    }
                 }
+
             } else {
                 request.setAttribute("PROCESSERROR", "Please input Description");
             }
         } catch (Exception e) {
             log("Error at AcceptProcessServlet : " + e.getMessage());
-        }finally{
+        } finally {
             request.getRequestDispatcher(REQUEST_PROCESS_PAGE).forward(request, response);
         }
 
